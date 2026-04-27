@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — ZeroToDigital</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0f1c; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 700px; padding: 30px 20px; }
+        h1, h2 { text-align: center; color: #00aaff; margin-bottom: 20px; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; font-size: 0.95rem; }
+        textarea { resize: vertical; min-height: 100px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .btn-primary { background: #00aaff; color: #fff; }
+        .btn-primary:hover { background: #0095e0; transform: translateY(-1px); }
+        .btn-danger { background: #e74c3c; color: #fff; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-success { background: #25D366; color: #fff; }
+        .post-item { background: #111827; padding: 16px; margin-bottom: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); }
+        .post-info { flex: 1; }
+        .post-info h3 { font-size: 1rem; margin-bottom: 4px; }
+        .post-info p { color: #aaa; font-size: 0.8rem; }
+        .actions { display: flex; gap: 8px; }
+        .login-box { max-width: 360px; margin: 60px auto; background: #111827; padding: 30px; border-radius: 12px; }
+        .hidden { display: none; }
+        .message { text-align: center; margin: 10px 0; color: #ff6b6b; }
+        .success { color: #4caf50; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .top-bar span { color: #aaa; font-size: 0.9rem; }
+        @media (max-width: 500px) {
+            .post-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .actions { width: 100%; justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ========== TELA DE LOGIN ========== -->
+        <div id="login-screen" class="login-box">
+            <h2>🔐 Admin</h2>
+            <input type="email" id="email" placeholder="E-mail" autocomplete="email">
+            <input type="password" id="password" placeholder="Senha" autocomplete="current-password">
+            <div id="login-message" class="message"></div>
+            <button class="btn btn-primary" style="width:100%;" onclick="login()">Entrar</button>
+            <p style="text-align:center; margin-top:12px; color:#666; font-size:0.8rem;">Use o e-mail e senha criados no Supabase</p>
+        </div>
+
+        <!-- ========== PAINEL ADMIN (oculto até login) ========== -->
+        <div id="admin-screen" class="hidden">
+            <div class="top-bar">
+                <h1>📰 Gerenciar Artigos</h1>
+                <div>
+                    <span id="user-email"></span>
+                    <button class="btn btn-danger" style="margin-left:10px; padding:6px 14px; font-size:0.8rem;" onclick="logout()">Sair</button>
+                </div>
+            </div>
+
+            <!-- Formulário de criação/edição -->
+            <div id="form-box">
+                <h2 id="form-title">Novo artigo</h2>
+                <input type="hidden" id="edit-id">
+                <input type="text" id="title" placeholder="Título do artigo" required>
+                <textarea id="content" placeholder="Conteúdo..."></textarea>
+                <input type="url" id="image_url" placeholder="URL da imagem (opcional)">
+                <label style="display:flex; align-items:center; gap:8px; margin-bottom:12px; color:#ccc; font-size:0.9rem;">
+                    <input type="checkbox" id="published" checked> Publicado
+                </label>
+                <div style="display:flex; gap:10px; margin-bottom:20px;">
+                    <button class="btn btn-primary" onclick="savePost()">💾 Salvar</button>
+                    <button class="btn" style="background:#555;" onclick="cancelEdit()">Cancelar</button>
+                </div>
+            </div>
+
+            <hr style="border-color:rgba(255,255,255,0.1); margin: 20px 0;">
+
+            <!-- Lista de posts existentes -->
+            <h2 style="text-align:left;">Todos os artigos</h2>
+            <div id="posts-list"></div>
+            <div id="admin-message" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        // ⚙️ MESMAS CREDENCIAIS DO SUPABASE (substitua)
+        const SUPABASE_URL = 'https://gfympgdmoycsvsynsqjw.supabase.co'; // ALTERAR
+        const SUPABASE_KEY = 'sb_publishable_nXfeMz-JMX1qx-JjlQle4A_Tjd2ZSW3'; // ALTERAR
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentUser = null;
+
+        // ---------- AUTENTICAÇÃO ----------
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const msg = document.getElementById('login-message');
+            msg.textContent = '';
+
+            if (!email || !password) {
+                msg.textContent = 'Preencha todos os campos.';
+                return;
+            }
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                msg.textContent = 'Erro: ' + error.message;
+                return;
+            }
+            currentUser = data.user;
+            showAdmin();
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            currentUser = null;
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('admin-screen').classList.add('hidden');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function showAdmin() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-screen').classList.remove('hidden');
+            document.getElementById('user-email').textContent = currentUser.email;
+            loadPosts();
+        }
+
+        // Verifica sessão ao carregar a página
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                currentUser = session.user;
+                showAdmin();
+            }
+        }
+        checkSession();
+
+        // ---------- CRUD DE POSTS ----------
+        async function loadPosts() {
+            const list = document.getElementById('posts-list');
+            const msg = document.getElementById('admin-message');
+            try {
+                const { data, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<p style="color:#aaa;">Nenhum artigo encontrado.</p>';
+                    return;
+                }
+
+                list.innerHTML = data.map(post => `
+                    <div class="post-item">
+                        <div class="post-info">
+                            <h3>${escapeHtml(post.title)} ${post.published ? '✅' : '⏳'}</h3>
+                            <p>${new Date(post.created_at).toLocaleDateString('pt-PT')}</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-primary" style="padding:6px 12px; font-size:0.8rem;" onclick="editPost('${post.id}')">Editar</button>
+                            <button class="btn btn-danger" style="padding:6px 12px; font-size:0.8rem;" onclick="deletePost('${post.id}')">Apagar</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                msg.textContent = 'Erro ao carregar: ' + err.message;
+            }
+        }
+
+        async function savePost() {
+            const id = document.getElementById('edit-id').value;
+            const title = document.getElementById('title').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const image_url = document.getElementById('image_url').value.trim() || null;
+            const published = document.getElementById('published').checked;
+            const msg = document.getElementById('admin-message');
+            msg.textContent = '';
+
+            if (!title || !content) {
+                msg.textContent = 'Título e conteúdo são obrigatórios.';
+                return;
+            }
+
+            const postData = { title, content, image_url, published };
+
+            let result;
+            if (id) {
+                // Editar
+                result = await supabase.from('posts').update(postData).eq('id', id);
+            } else {
+                // Criar novo
+                result = await supabase.from('posts').insert([postData]);
+            }
+
+            const { error } = result;
+            if (error) {
+                msg.textContent = 'Erro ao salvar: ' + error.message;
+                return;
+            }
+
+            msg.textContent = id ? 'Artigo atualizado!' : 'Artigo criado!';
+            msg.className = 'message success';
+            cancelEdit();
+            loadPosts();
+            setTimeout(() => { msg.textContent = ''; msg.className = 'message'; }, 3000);
+        }
+
+        async function editPost(id) {
+            const { data, error } = await supabase.from('posts').select('*').eq('id', id).single();
+            if (error) {
+                document.getElementById('admin-message').textContent = 'Erro ao buscar artigo.';
+                return;
+            }
+            document.getElementById('edit-id').value = data.id;
+            document.getElementById('title').value = data.title;
+            document.getElementById('content').value = data.content;
+            document.getElementById('image_url').value = data.image_url || '';
+            document.getElementById('published').checked = data.published;
+            document.getElementById('form-title').textContent = 'Editar artigo';
+        }
+
+        function cancelEdit() {
+            document.getElementById('edit-id').value = '';
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+            document.getElementById('image_url').value = '';
+            document.getElementById('published').checked = true;
+            document.getElementById('form-title').textContent = 'Novo artigo';
+        }
+
+        async function deletePost(id) {
+            if (!confirm('Tem certeza que deseja apagar este artigo?')) return;
+            const { error } = await supabase.from('posts').delete().eq('id', id);
+            if (error) {
+                document.getElementById('admin-message').textContent = 'Erro ao apagar: ' + error.message;
+            } else {
+                loadPosts();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

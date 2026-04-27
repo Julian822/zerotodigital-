@@ -4,179 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZeroToDigital — Soluções Digitais</title>
-    <meta name="description" content="Criamos sites, design e marketing digital. Leia os nossos artigos e cresça online.">
+    <meta name="description" content="Criamos sites, design e marketing digital. Veja os nossos trabalhos e artigos.">
     <meta name="theme-color" content="#0a0f1c">
-
-    <!-- SUPABASE SDK (CDN) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-
     <style>
-        /* ========== RESET & BASE ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body {
-            font-family: 'Segoe UI', 'Inter', Arial, sans-serif;
-            background-color: #0a0f1c;
-            color: #fff;
-            line-height: 1.6;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* ========== NAVBAR ========== */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 28px;
-            background-color: #0a0f1c;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-        }
-        .logo { font-size: 1.4rem; font-weight: 700; color: #00aaff; letter-spacing: -0.3px; user-select: none; }
+        body { font-family: 'Segoe UI', 'Inter', Arial, sans-serif; background-color: #0a0f1c; color: #fff; line-height: 1.6; overflow-x: hidden; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; background-color: #0a0f1c; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.06); backdrop-filter: blur(6px); }
+        .logo { font-size: 1.4rem; font-weight: 700; color: #00aaff; }
         .menu { display: flex; gap: 28px; list-style: none; }
-        .menu a { color: #ccc; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.25s ease; position: relative; }
-        .menu a::after {
-            content: ''; position: absolute; bottom: -4px; left: 0; width: 0%; height: 2px;
-            background-color: #00aaff; transition: width 0.3s ease; border-radius: 2px;
-        }
+        .menu a { color: #ccc; text-decoration: none; font-size: 0.95rem; font-weight: 500; transition: color 0.25s; position: relative; }
+        .menu a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0%; height: 2px; background-color: #00aaff; transition: width 0.3s; border-radius: 2px; }
         .menu a:hover { color: #fff; }
         .menu a:hover::after { width: 100%; }
-        .menu-toggle { display: none; cursor: pointer; font-size: 26px; color: #fff; background: none; border: none; padding: 6px 10px; border-radius: 6px; transition: background 0.2s ease; line-height: 1; }
+        .menu-toggle { display: none; cursor: pointer; font-size: 26px; color: #fff; background: none; border: none; padding: 6px 10px; border-radius: 6px; }
         .menu-toggle:hover { background: rgba(255,255,255,0.06); }
-
-        /* ========== HERO ========== */
-        .hero {
-            min-height: 85vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 40px 24px; background-color: #0c1220; position: relative; overflow: hidden;
-        }
-        .hero::before {
-            content: ''; position: absolute; width: 420px; height: 420px; border: 2px solid rgba(0,170,255,0.08);
-            border-radius: 50%; top: -120px; right: -140px; pointer-events: none;
-        }
-        .hero::after {
-            content: ''; position: absolute; width: 280px; height: 280px; border: 2px solid rgba(0,170,255,0.06);
-            border-radius: 50%; bottom: -80px; left: -90px; pointer-events: none;
-        }
+        .hero { min-height: 85vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px 24px; background-color: #0c1220; position: relative; overflow: hidden; }
+        .hero::before { content: ''; position: absolute; width: 420px; height: 420px; border: 2px solid rgba(0,170,255,0.08); border-radius: 50%; top: -120px; right: -140px; pointer-events: none; }
+        .hero::after { content: ''; position: absolute; width: 280px; height: 280px; border: 2px solid rgba(0,170,255,0.06); border-radius: 50%; bottom: -80px; left: -90px; pointer-events: none; }
         .hero-content { position: relative; z-index: 2; max-width: 700px; animation: fadeUp 0.9s ease forwards; opacity: 0; transform: translateY(30px); }
-        .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 16px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); margin-bottom: 16px; font-weight: 800; }
         .hero h1 span { color: #00aaff; }
         .hero p { font-size: 1.15rem; color: #b0b8c4; margin-bottom: 32px; animation: fadeUp 1.1s ease forwards; opacity: 0; transform: translateY(30px); }
         .hero .buttons { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; animation: fadeUp 1.3s ease forwards; opacity: 0; transform: translateY(30px); }
-
-        /* ========== BOTÕES ========== */
-        .btn {
-            padding: 14px 26px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.95rem;
-            text-decoration: none; display: inline-block; transition: all 0.3s ease; letter-spacing: 0.2px; color: #fff;
-        }
+        .btn { padding: 14px 26px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: all 0.3s; color: #fff; display: inline-block; }
         .btn-whatsapp { background-color: #25D366; }
         .btn-whatsapp:hover { background-color: #1fb855; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,211,102,0.3); }
         .btn-instagram { background-color: #E1306C; }
         .btn-instagram:hover { background-color: #c9265c; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(225,48,108,0.3); }
         .btn-primary { background-color: #00aaff; }
         .btn-primary:hover { background-color: #0095e0; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,170,255,0.3); }
-        .btn-dark { background-color: #0a0f1c; color: #fff; }
-        .btn-dark:hover { background-color: #141c2b; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-        .btn:active { transform: scale(0.96); transition: transform 0.1s ease; }
-
-        /* ========== SEÇÕES ========== */
+        .btn-dark { background-color: #0a0f1c; }
+        .btn-dark:hover { background-color: #141c2b; transform: translateY(-2px); }
         .section { padding: 70px 24px; text-align: center; }
-        .section h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.4px; }
-        .section .subtitle { color: #8892a4; margin-bottom: 40px; font-size: 1rem; }
-
-        /* CARDS DE SERVIÇOS */
-        .cards {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px;
-            max-width: 1100px; margin: 0 auto;
-        }
-        .card {
-            background-color: #111827; padding: 30px 22px; border-radius: 12px; text-align: left;
-            transition: all 0.35s ease; border: 1px solid rgba(255,255,255,0.04); position: relative; overflow: hidden;
-        }
-        .card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background-color: #00aaff;
-            border-radius: 0 0 3px 3px; transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
-        }
-        .card:hover::before { transform: scaleX(1); }
-        .card:hover { transform: translateY(-6px); border-color: rgba(0,170,255,0.2); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
-        .card h3 { font-size: 1.25rem; margin-bottom: 8px; color: #fff; font-weight: 700; }
-        .card p { color: #9aa3b3; font-size: 0.93rem; margin-bottom: 18px; line-height: 1.5; }
-        .card .btn { font-size: 0.85rem; padding: 10px 18px; }
-
-        /* BLOG / ARTIGOS */
-        #blog .article-card {
-            background-color: #111827; border-radius: 12px; padding: 24px 20px; text-align: left;
-            transition: transform 0.3s ease, box-shadow 0.3s ease; border: 1px solid rgba(255,255,255,0.04);
-            display: flex; flex-direction: column; justify-content: space-between;
-        }
-        #blog .article-card:hover { transform: translateY(-4px); border-color: rgba(0,170,255,0.2); box-shadow: 0 12px 30px rgba(0,0,0,0.45); }
-        .article-card h3 { font-size: 1.2rem; margin-bottom: 8px; color: #fff; }
-        .article-card p { color: #9aa3b3; font-size: 0.9rem; flex: 1; }
-        .article-card .date { color: #6b7280; font-size: 0.8rem; margin-top: 12px; display: block; }
-        .article-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 14px; background-color: #1f2937; }
-
-        /* CTA */
-        .cta {
-            background-color: #00aaff; padding: 60px 24px; text-align: center; color: #fff;
-        }
-        .cta h2 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
-        .cta p { font-size: 1.1rem; margin-bottom: 24px; opacity: 0.9; }
+        .section h2 { font-size: 2rem; margin-bottom: 12px; }
+        .subtitle { color: #8892a4; margin-bottom: 40px; font-size: 1rem; }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 22px; max-width: 1100px; margin: 0 auto; }
+        .card, .project-card { background-color: #111827; border-radius: 12px; padding: 24px; text-align: left; transition: all 0.35s; border: 1px solid rgba(255,255,255,0.04); position: relative; }
+        .project-card { display: flex; flex-direction: column; }
+        .project-card img { width: 100%; height: 180px; object-fit: cover; border-radius: 8px; margin-bottom: 14px; background-color: #1f2937; }
+        .project-card h3 { font-size: 1.25rem; margin-bottom: 8px; }
+        .project-card p { color: #9aa3b3; font-size: 0.93rem; flex: 1; margin-bottom: 14px; }
+        .project-card .meta { display: flex; justify-content: space-between; align-items: center; color: #6b7280; font-size: 0.8rem; }
+        .project-card .btn-link { background: transparent; border: 1px solid #00aaff; color: #00aaff; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; transition: background 0.3s; }
+        .project-card .btn-link:hover { background: rgba(0,170,255,0.15); }
+        .cta { background-color: #00aaff; padding: 60px 24px; text-align: center; }
+        .cta h2 { font-size: 2rem; margin-bottom: 8px; }
+        .cta p { font-size: 1.1rem; margin-bottom: 24px; }
         .cta .buttons { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
-
-        /* FOOTER */
-        footer {
-            text-align: center; padding: 28px 20px; color: #6b7280; font-size: 0.85rem;
-            border-top: 1px solid rgba(255,255,255,0.05); background-color: #0a0f1c;
-        }
-        footer .motto { color: #555; font-style: italic; margin-top: 6px; font-size: 0.8rem; }
-
-        /* ANIMAÇÕES */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+        footer { text-align: center; padding: 28px 20px; color: #6b7280; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s, transform 0.7s; }
         .reveal.revealed { opacity: 1; transform: translateY(0); }
-
-        /* RESPONSIVO */
         @media (max-width: 768px) {
-            .menu { display: none; flex-direction: column; background-color: #111827; position: absolute; top: 62px; right: 16px; padding: 14px 20px; border-radius: 10px; gap: 14px; z-index: 999; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 12px 32px rgba(0,0,0,0.6); min-width: 180px; }
+            .menu { display: none; flex-direction: column; background-color: #111827; position: absolute; top: 62px; right: 16px; padding: 14px 20px; border-radius: 10px; gap: 14px; z-index: 999; border: 1px solid rgba(255,255,255,0.08); }
             .menu.show { display: flex; }
             .menu-toggle { display: block; }
-            nav { padding: 14px 18px; }
             .hero { min-height: 75vh; padding: 30px 18px; }
-            .hero::before, .hero::after { width: 200px; height: 200px; }
-            .hero::before { top: -60px; right: -70px; }
-            .hero::after { bottom: -50px; left: -50px; }
-            .section { padding: 50px 16px; }
-            .cards { grid-template-columns: 1fr; }
-            .card { text-align: center; }
-            .cta h2 { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
-
-    <!-- ========== NAVBAR ========== -->
-    <nav aria-label="Navegação principal">
+    <nav>
         <div class="logo">ZeroToDigital</div>
         <div class="menu" id="menu">
             <a href="#services">Serviços</a>
-            <a href="#blog">Artigos</a>
+            <a href="#projects">Projetos</a>
             <a href="#contact">Contato</a>
         </div>
-        <button class="menu-toggle" onclick="toggleMenu()" aria-label="Abrir menu" aria-expanded="false">☰</button>
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     </nav>
 
-    <!-- ========== HERO ========== -->
     <section class="hero">
         <div class="hero-content">
             <h1>Criamos <span>soluções digitais</span> que geram clientes</h1>
-            <p>Sites profissionais, marketing e design focados em crescimento real para o seu negócio</p>
+            <p>Sites profissionais, marketing e design focados em crescimento real</p>
             <div class="buttons">
                 <button class="btn btn-whatsapp" onclick="goWhats()">💬 WhatsApp</button>
                 <button class="btn btn-instagram" onclick="goInsta()">📷 Instagram</button>
@@ -184,28 +87,25 @@
         </div>
     </section>
 
-    <!-- ========== SERVIÇOS ========== -->
     <section id="services" class="section">
         <h2>Os Nossos Serviços</h2>
-        <p class="subtitle">Tudo o que precisa para crescer online, num só lugar</p>
+        <p class="subtitle">Tudo o que precisa para crescer online</p>
         <div class="cards">
-            <div class="card reveal"><h3>🌐 Criação de Sites</h3><p>Sites profissionais e responsivos que aumentam a credibilidade da sua marca.</p><button class="btn btn-primary" onclick="goWhats()">Solicitar</button></div>
-            <div class="card reveal"><h3>🎨 Design Gráfico</h3><p>Design que faz a sua marca parecer profissional — logótipos, identidade visual.</p><button class="btn btn-primary" onclick="goWhats()">Solicitar</button></div>
-            <div class="card reveal"><h3>📈 Marketing Digital</h3><p>Estratégias personalizadas para fazer o seu negócio crescer online.</p><button class="btn btn-primary" onclick="goWhats()">Solicitar</button></div>
-            <div class="card reveal"><h3>🚀 Tráfego Pago</h3><p>Campanhas otimizadas que colocam o seu produto à frente de clientes.</p><button class="btn btn-primary" onclick="goWhats()">Solicitar</button></div>
+            <div class="card reveal"><h3>🌐 Criação de Sites</h3><p>Sites profissionais e responsivos.</p><button class="btn btn-primary" onclick="goWhats()">Solicitar</button></div>
+            <div class="card reveal"><h3>🎨 Design Gráfico</h3><p>Logótipos, identidade visual e materiais.</p><button class="btn btn-primary" onclick="goWhats()">Solicitar</button></div>
+            <div class="card reveal"><h3>📈 Marketing Digital</h3><p>Estratégias para vender mais.</p><button class="btn btn-primary" onclick="goWhats()">Solicitar</button></div>
+            <div class="card reveal"><h3>🚀 Tráfego Pago</h3><p>Campanhas otimizadas no Google e redes sociais.</p><button class="btn btn-primary" onclick="goWhats()">Solicitar</button></div>
         </div>
     </section>
 
-    <!-- ========== BLOG / ARTIGOS ========== -->
-    <section id="blog" class="section reveal">
-        <h2>📝 Últimos Artigos</h2>
-        <p class="subtitle">Dicas e novidades sobre marketing digital e negócios</p>
-        <div id="blog-container" class="cards">
-            <!-- Carregado via JavaScript -->
+    <section id="projects" class="section reveal">
+        <h2>📁 Projetos Recentes</h2>
+        <p class="subtitle">Trabalhos que realizámos com orgulho</p>
+        <div id="projects-container" class="cards">
+            <p style="color:#aaa;">A carregar projetos...</p>
         </div>
     </section>
 
-    <!-- ========== CTA ========== -->
     <section class="cta reveal">
         <h2>Quer mais clientes para o seu negócio?</h2>
         <p>Fale agora connosco e descubra como podemos ajudar</p>
@@ -215,7 +115,6 @@
         </div>
     </section>
 
-    <!-- ========== CONTATO ========== -->
     <section id="contact" class="section reveal">
         <h2>Entre em Contacto</h2>
         <p class="subtitle">Estamos prontos para transformar a sua presença digital</p>
@@ -227,19 +126,15 @@
 
     <footer>
         <p>&copy; 2026 ZeroToDigital. Todos os direitos reservados.</p>
-        <p class="motto">Resultados variam. Consistência é o que separa quem tenta de quem consegue.</p>
+        <p style="color:#555; font-style:italic;">Consistência é o que separa quem tenta de quem consegue.</p>
     </footer>
 
-    <!-- ========== SCRIPTS ========== -->
     <script>
-        // ⚙️ CONFIGURAÇÃO DO SUPABASE (substitua com os teus dados)
-        const SUPABASE_URL = 'https://gfympgdmoycsvsynsqjw.supabase.co'; // ALTERAR
-        const SUPABASE_KEY = 'sb_publishable_nXfeMz-JMX1qx-JjlQle4A_Tjd2ZSW3'; // ALTERAR
-
-        // Inicializa Supabase
+        // ⚙️ CONFIGURAÇÃO SUPABASE (substituída com as tuas credenciais)
+        const SUPABASE_URL = 'https://gfympgdmoycsvsynsqjw.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_nXfeMz-JMX1qx-JjlQle4A_Tjd2ZSW3';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Dados de contacto
         const WHATSAPP_NUMBER = '244951595778';
         const INSTAGRAM_USER = 'zerotodigital71';
 
@@ -252,77 +147,56 @@
             const btn = document.querySelector('.menu-toggle');
             menu.classList.toggle('show');
             const isOpen = menu.classList.contains('show');
-            btn.setAttribute('aria-expanded', isOpen);
             btn.innerHTML = isOpen ? '✕' : '☰';
         }
         document.querySelectorAll('#menu a').forEach(link => {
             link.addEventListener('click', () => {
-                const menu = document.getElementById('menu');
-                const btn = document.querySelector('.menu-toggle');
-                if (menu.classList.contains('show')) {
-                    menu.classList.remove('show');
-                    btn.setAttribute('aria-expanded', 'false');
-                    btn.innerHTML = '☰';
-                }
+                document.getElementById('menu').classList.remove('show');
+                document.querySelector('.menu-toggle').innerHTML = '☰';
             });
         });
-        document.addEventListener('click', (e) => {
-            const menu = document.getElementById('menu');
-            const btn = document.querySelector('.menu-toggle');
-            if (!menu.contains(e.target) && !btn.contains(e.target) && menu.classList.contains('show')) {
-                menu.classList.remove('show');
-                btn.setAttribute('aria-expanded', 'false');
-                btn.innerHTML = '☰';
-            }
-        });
 
-        // Revelação suave
-        const revealEls = document.querySelectorAll('.reveal');
+        // Animação reveal
         const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('revealed');
-                    observer.unobserve(entry.target);
-                }
-            });
+            entries.forEach(entry => { if(entry.isIntersecting) { entry.target.classList.add('revealed'); observer.unobserve(entry.target); } });
         }, { threshold: 0.15 });
-        revealEls.forEach(el => observer.observe(el));
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        // --- CARREGAR ARTIGOS DO SUPABASE ---
-        async function loadPosts() {
-            const container = document.getElementById('blog-container');
-            if (!container) return;
-
+        // Carregar projetos
+        async function loadProjects() {
+            const container = document.getElementById('projects-container');
             try {
                 const { data, error } = await supabase
                     .from('posts')
                     .select('*')
                     .eq('published', true)
-                    .order('created_at', { ascending: false })
-                    .limit(6);
+                    .order('created_at', { ascending: false });
 
                 if (error) {
-                    console.error('Erro ao carregar artigos:', error.message);
-                    container.innerHTML = '<p style="color:#aaa;">Não foi possível carregar os artigos.</p>';
+                    console.error('Erro Supabase:', error);
+                    container.innerHTML = `<p style="color:#ff6b6b;">Erro ao carregar: ${error.message}</p>`;
                     return;
                 }
 
                 if (!data || data.length === 0) {
-                    container.innerHTML = '<p style="color:#aaa;">Nenhum artigo publicado ainda. Volte em breve!</p>';
+                    container.innerHTML = '<p style="color:#aaa;">Nenhum projeto publicado ainda.</p>';
                     return;
                 }
 
                 container.innerHTML = data.map(post => `
-                    <div class="article-card">
-                        ${post.image_url ? `<img src="${post.image_url}" alt="${post.title}" loading="lazy">` : ''}
+                    <div class="project-card">
+                        ${post.image_url ? `<img src="${post.image_url}" alt="${escapeHtml(post.title)}" loading="lazy">` : ''}
                         <h3>${escapeHtml(post.title)}</h3>
-                        <p>${escapeHtml(post.content.substring(0, 150))}...</p>
-                        <span class="date">${new Date(post.created_at).toLocaleDateString('pt-PT')}</span>
+                        <p>${escapeHtml(post.content.substring(0, 120))}...</p>
+                        <div class="meta">
+                            <span>${new Date(post.created_at).toLocaleDateString('pt-PT')}</span>
+                            ${post.project_url ? `<a href="${post.project_url}" target="_blank" class="btn-link">🔗 Ver projeto</a>` : ''}
+                        </div>
                     </div>
                 `).join('');
             } catch (err) {
                 console.error(err);
-                container.innerHTML = '<p style="color:#aaa;">Erro ao conectar com o servidor.</p>';
+                container.innerHTML = '<p style="color:#ff6b6b;">Falha na conexão com o servidor.</p>';
             }
         }
 
@@ -332,8 +206,7 @@
             return div.innerHTML;
         }
 
-        // Carrega assim que a página estiver pronta
-        document.addEventListener('DOMContentLoaded', loadPosts);
+        loadProjects();
     </script>
 </body>
 </html>
